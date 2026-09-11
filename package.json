@@ -18,7 +18,7 @@
   "homepage": "https://github.com/kevinatown/MMM-Screencast#readme",
   "main": "app.js",
   "scripts": {
-    "start": "electron app.js",
+    "start": "electron --ozone-platform=wayland app.js",
     "test": "jest"
   },
   "dependencies": {
@@ -30,5 +30,8 @@
   },
   "bugs": {
     "url": "https://github.com/kevinatown/MMM-Screencast/issues"
+  },
+  "allowScripts": {
+    "electron@24.1.2": true
   }
 }

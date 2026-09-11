@@ -19,6 +19,7 @@ const apps = {
     allowStop: true,
     pid: null,
     launch: function (launchData, config) {
+      const appRef = this;
       const url = "https://www.youtube.com/tv?"+launchData;
       
       child = spawn('npm', ['start'], {
@@ -41,6 +42,11 @@ const apps = {
 
       child.on('close', function(code) {
          console.log('closing code: ' + code);
+         if (appRef.state !== 'stopped') {
+           console.log('MMM-Screencast: child exited unexpectedly (code ' + code + '), resetting app state so it can be relaunched');
+           appRef.state = 'stopped';
+           appRef.pid = null;
+         }
       });
     }
   }
