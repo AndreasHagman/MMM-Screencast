@@ -133,6 +133,16 @@ app.once('ready', () => {
       screenCastWindow.webContents.executeJavaScript(autoCloseScript, true);
       screenCastWindow.webContents.executeJavaScript(idleTimeoutScript, true);
       ipcInstance.emit(socket, 'APP_READY', {});
+
+      // Hard cap: close after MAX_SESSION_MS regardless of playback activity.
+      // Covers YouTube autoplay chains that keep advancing forever after the
+      // sender disconnects - the idle-timeout above only catches paused/stalled video.
+      const MAX_SESSION_MS = 12 * 60 * 60 * 1000;
+      setTimeout(() => {
+        console.log('MMM-Screencast: max session length reached, closing');
+        ipcInstance.server.emit(socket, 'quit');
+        app.quit();
+      }, MAX_SESSION_MS);
     });
   });
 });
