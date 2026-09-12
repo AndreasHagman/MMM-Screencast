@@ -132,6 +132,10 @@ app.once('ready', () => {
       screenCastWindow.webContents.executeJavaScript(autoPlayScript, true);
       screenCastWindow.webContents.executeJavaScript(autoCloseScript, true);
       screenCastWindow.webContents.executeJavaScript(idleTimeoutScript, true);
+    screenCastWindow.webContents.on('did-navigate', () => {
+      screenCastWindow.webContents.executeJavaScript(autoCloseScript, true);
+      screenCastWindow.webContents.executeJavaScript(idleTimeoutScript, true);
+    });
       ipcInstance.emit(socket, 'APP_READY', {});
 
       // Hard cap: close after MAX_SESSION_MS regardless of playback activity.
