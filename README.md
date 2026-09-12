@@ -60,6 +60,39 @@ These are the notifications that can be sent to MMM-Screencast in order to contr
 |------------- |------------------|------------
 | `MMM-Screencast:CLOSE` | none | This informs MMM-Screencast to close the currently running app. 
 
+## Troubleshooting: device doesn't show up / stuck cast state
+
+If the Pi stops showing up as a cast target, or a cast fails to start, the
+DIAL server's internal state can get stuck after an interrupted or crashed
+cast attempt (e.g. the sender disconnects mid-cast, or the app process dies
+unexpectedly). Symptoms: the device is no longer listed in the sender app's
+cast picker, or `GET /dial/apps/YouTube` on the module's port keeps reporting
+a state other than `stopped` even though nothing is casting.
+
+**Fix:** restart MagicMirror to reset the DIAL server's in-memory state:
+
+```bash
+pm2 restart MagicMirror
+```
+
+If that doesn't bring the device back (e.g. after a long-running session, or
+if the network stack itself seems wedged), a full reboot of the device
+clears everything and has reliably resolved it:
+
+```bash
+sudo reboot
+```
+
+You can check the current app state directly without waiting for the sender
+app to refresh its list:
+
+```bash
+curl -s http://localhost:8569/dial/apps/YouTube
+```
+
+A healthy, idle server reports `<state>stopped</state>`.
+
+
 
 ## Screenshots
 
