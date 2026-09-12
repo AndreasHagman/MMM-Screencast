@@ -18,7 +18,7 @@ app.once('ready', () => {
   electron.session.defaultSession.setUserAgent(userAgent);
 
   ipcInstance.on('SEND_CONFIG', (data, socket) => {
-    const { url, position, width, height, x, y } = data;
+    const { url, position, width, height, x, y, idleTimeoutSeconds = 180, maxSessionHours = 12 } = data;
 
     const usingXY = x && y;
 
@@ -102,7 +102,7 @@ app.once('ready', () => {
       (function() {
         let lastTime = -1;
         let stalledSince = null;
-        const IDLE_TIMEOUT_MS = 3 * 60 * 1000;
+        const IDLE_TIMEOUT_MS = ${idleTimeoutSeconds * 1000};
         setInterval(() => {
           const video = document.getElementsByTagName('video')[0];
           if (!video) return;
@@ -141,7 +141,7 @@ app.once('ready', () => {
       // Hard cap: close after MAX_SESSION_MS regardless of playback activity.
       // Covers YouTube autoplay chains that keep advancing forever after the
       // sender disconnects - the idle-timeout above only catches paused/stalled video.
-      const MAX_SESSION_MS = 12 * 60 * 60 * 1000;
+      const MAX_SESSION_MS = maxSessionHours * 60 * 60 * 1000;
       setTimeout(() => {
         console.log('MMM-Screencast: max session length reached, closing');
         ipcInstance.server.emit(socket, 'quit');
