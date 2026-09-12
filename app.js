@@ -98,6 +98,28 @@ app.once('ready', () => {
         }, 1000);
       `;
 
+    const idleTimeoutScript = `
+      (function() {
+        let lastTime = -1;
+        let stalledSince = null;
+        const IDLE_TIMEOUT_MS = 3 * 60 * 1000;
+        setInterval(() => {
+          const video = document.getElementsByTagName('video')[0];
+          if (!video) return;
+          const stalled = video.paused || video.currentTime === lastTime;
+          lastTime = video.currentTime;
+          if (stalled) {
+            if (stalledSince === null) stalledSince = Date.now();
+            if (Date.now() - stalledSince >= IDLE_TIMEOUT_MS) {
+              console.log("mmm-screencast.exited");
+            }
+          } else {
+            stalledSince = null;
+          }
+        }, 5000);
+      })();
+    `;
+
       screenCastWindow.webContents.on('console-message', (event, level, message, line, sourceId) => {
         if (message === "mmm-screencast.exited") {
            ipcInstance.server.emit(socket, 'quit');
@@ -109,6 +131,7 @@ app.once('ready', () => {
       // screenCastWindow.webContents.openDevTools();
       screenCastWindow.webContents.executeJavaScript(autoPlayScript, true);
       screenCastWindow.webContents.executeJavaScript(autoCloseScript, true);
+      screenCastWindow.webContents.executeJavaScript(idleTimeoutScript, true);
       ipcInstance.emit(socket, 'APP_READY', {});
     });
   });
